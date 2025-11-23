@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SAST - Análise Estática de Segurança | Segurança e Auditoria</title>
+    <style>
+      :root {
+        --hacker-green: #00ff00;
+        --terminal-black: #0a0a0a;
+        --matrix-green: #00cc00;
+        --cyber-blue: #0066ff;
+        --warning-orange: #ff6600;
+        --error-red: #ff3333;
+        --dark-gray: #1a1a1a;
+        --medium-gray: #333333;
+        --light-gray: #666666;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: var(--terminal-black);
+        color: #ffffff;
+        font-family: "Courier New", monospace;
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+
+      .cyber-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      /* Header Styles */
+      .cyber-header {
+        border-bottom: 2px solid var(--hacker-green);
+        padding: 20px 0;
+        margin-bottom: 40px;
+        position: relative;
+      }
+
+      .cyber-header::after {
+        content: "";
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 100%;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--hacker-green),
+          transparent
+        );
+      }
+
+      .project-title {
+        color: var(--hacker-green);
+        font-size: 2.5rem;
+        text-align: center;
+        text-shadow: 0 0 10px var(--matrix-green);
+        margin-bottom: 10px;
+      }
+
+      .project-subtitle {
+        color: var(--cyber-blue);
+        text-align: center;
+        font-size: 1.2rem;
+      }
+
+      /* Card Styles */
+      .cyber-card {
+        background: var(--dark-gray);
+        border: 1px solid var(--medium-gray);
+        border-radius: 8px;
+        padding: 25px;
+        margin: 20px 0;
+        position: relative;
+        transition: all 0.3s ease;
+      }
+
+      .cyber-card:hover {
+        border-color: var(--hacker-green);
+        box-shadow: 0 0 15px rgba(0, 255, 0, 0.1);
+      }
+
+      .card-title {
+        color: var(--hacker-green);
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .card-icon {
+        font-size: 1.8rem;
+      }
+
+      /* Grid Layout */
+      .comparison-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 20px;
+        margin: 30px 0;
+      }
+
+      .manual-card {
+        border-left: 4px solid var(--cyber-blue);
+      }
+
+      .auto-card {
+        border-left: 4px solid var(--warning-orange);
+      }
+
+      .hybrid-card {
+        border-left: 4px solid var(--hacker-green);
+        grid-column: 1 / -1;
+      }
+
+      /* List Styles */
+      .cyber-list {
+        list-style: none;
+        padding: 0;
+      }
+
+      .cyber-list li {
+        padding: 8px 0;
+        border-bottom: 1px solid var(--medium-gray);
+        position: relative;
+        padding-left: 25px;
+      }
+
+      .cyber-list li::before {
+        content: ">";
+        color: var(--hacker-green);
+        position: absolute;
+        left: 0;
+      }
+
+      .advantage::before {
+        content: "✓";
+        color: var(--hacker-green);
+      }
+
+      .disadvantage::before {
+        content: "✗";
+        color: var(--error-red);
+      }
+
+      /* Code Block */
+      .code-block {
+        background: var(--terminal-black);
+        border: 1px solid var(--matrix-green);
+        border-radius: 5px;
+        padding: 20px;
+        margin: 20px 0;
+        font-family: "Courier New", monospace;
+        overflow-x: auto;
+      }
+
+      .code-comment {
+        color: var(--light-gray);
+      }
+      .code-keyword {
+        color: var(--cyber-blue);
+      }
+      .code-string {
+        color: var(--hacker-green);
+      }
+      .code-function {
+        color: var(--warning-orange);
+      }
+
+      /* Use Case Section */
+      .use-case {
+        background: linear-gradient(
+          135deg,
+          var(--dark-gray),
+          var(--terminal-black)
+        );
+        border: 1px solid var(--cyber-blue);
+        border-radius: 8px;
+        padding: 25px;
+        margin: 30px 0;
+      }
+
+      .use-case-title {
+        color: var(--cyber-blue);
+        font-size: 1.8rem;
+        margin-bottom: 20px;
+        text-align: center;
+      }
+
+      .workflow-steps {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 30px 0;
+        flex-wrap: wrap;
+      }
+
+      .step {
+        text-align: center;
+        flex: 1;
+        min-width: 120px;
+        margin: 10px;
+      }
+
+      .step-number {
+        background: var(--cyber-blue);
+        color: var(--terminal-black);
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 10px;
+        font-weight: bold;
+      }
+
+      .step-description {
+        font-size: 0.9rem;
+        color: var(--light-gray);
+      }
+
+      /* Footer */
+      .cyber-footer {
+        border-top: 1px solid var(--medium-gray);
+        padding: 20px 0;
+        text-align: center;
+        color: var(--light-gray);
+        margin-top: 40px;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .comparison-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .workflow-steps {
+          flex-direction: column;
+        }
+
+        .step {
+          margin: 10px 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="cyber-container">
+      <header class="cyber-header">
+        <h1 class="project-title">SAST - ANÁLISE ESTÁTICA DE SEGURANÇA</h1>
+        <p class="project-subtitle">
+          Manual vs Automatizada - Abordagem Híbrida em Segurança de Aplicações
+        </p>
+      </header>
+
+      <main>
+        <!-- Introdução -->
+        <section class="cyber-card">
+          <h2 class="card-title">🔍 O que é Análise Estática (SAST)?</h2>
+          <p>
+            A análise estática de segurança (SAST - Static Application Security
+            Testing) é uma metodologia que examina o código-fonte sem
+            executá-lo, identificando vulnerabilidades potenciais antes que o
+            software entre em produção.
+          </p>
+
+          <div class="code-block">
+            <span class="code-comment"
+              >// Exemplo de vulnerabilidade que o SAST pode identificar</span
+            ><br />
+            <span class="code-keyword">function</span>
+            <span class="code-function">login</span>(username, password) {<br />
+            &nbsp;&nbsp;<span class="code-keyword">const</span> query =
+            <span class="code-string"
+              >`SELECT * FROM users WHERE username = '</span
+            >${username}<span class="code-string">' AND password = '</span
+            >${password}<span class="code-string">'`</span>;<br />
+            &nbsp;&nbsp;<span class="code-comment"
+              >// ⚠️ VULNERABILIDADE: SQL Injection</span
+            ><br />
+            &nbsp;&nbsp;<span class="code-keyword">return</span>
+            database.execute(query);<br />
+            }
+          </div>
+        </section>
+
+        <!-- Comparação Manual vs Automatizada -->
+        <section>
+          <h2 class="card-title">⚖️ Comparação: Abordagens de Análise</h2>
+          <div class="comparison-grid">
+            <!-- Análise Manual -->
+            <div class="cyber-card manual-card">
+              <h3 class="card-title">👨‍💻 Análise Manual</h3>
+              <h4>✅ Vantagens</h4>
+              <ul class="cyber-list">
+                <li class="advantage">
+                  Identifica falhas de lógica de negócio
+                </li>
+                <li class="advantage">
+                  Contextualização de riscos específicos
+                </li>
+                <li class="advantage">Detecta vulnerabilidades complexas</li>
+                <li class="advantage">Entende a intenção do desenvolvedor</li>
+              </ul>
+
+              <h4>❌ Desvantagens</h4>
+              <ul class="cyber-list">
+                <li class="disadvantage">Alto custo de tempo e recursos</li>
+                <li class="disadvantage">Suscetível a erros humanos</li>
+                <li class="disadvantage">Dificuldade de escalabilidade</li>
+                <li class="disadvantage">Dependência da experiência</li>
+              </ul>
+            </div>
+
+            <!-- Análise Automatizada -->
+            <div class="cyber-card auto-card">
+              <h3 class="card-title">🤖 SAST Automatizado</h3>
+              <h4>✅ Vantagens</h4>
+              <ul class="cyber-list">
+                <li class="advantage">Velocidade e escalabilidade</li>
+                <li class="advantage">Consistência na detecção</li>
+                <li class="advantage">Integração contínua (DevSecOps)</li>
+                <li class="advantage">Cobertura ampla de padrões</li>
+              </ul>
+
+              <h4>❌ Desvantagens</h4>
+              <ul class="cyber-list">
+                <li class="disadvantage">Alto número de falsos positivos</li>
+                <li class="disadvantage">Não entende contexto de negócio</li>
+                <li class="disadvantage">Dificuldade em lógica complexa</li>
+                <li class="disadvantage">Dependência de assinaturas</li>
+              </ul>
+            </div>
+
+            <!-- Abordagem Híbrida -->
+            <div class="cyber-card hybrid-card">
+              <h3 class="card-title">🎯 Abordagem Híbrida Recomendada</h3>
+              <p>
+                A combinação sinérgica entre automação e análise humana maximiza
+                a cobertura de segurança enquanto otimiza recursos:
+              </p>
+
+              <div class="workflow-steps">
+                <div class="step">
+                  <div class="step-number">1</div>
+                  <div class="step-description">
+                    SAST Automatizado<br />Varredura inicial
+                  </div>
+                </div>
+                <div class="step">
+                  <div class="step-number">2</div>
+                  <div class="step-description">Triagem de<br />Resultados</div>
+                </div>
+                <div class="step">
+                  <div class="step-number">3</div>
+                  <div class="step-description">
+                    Análise Manual<br />Componentes críticos
+                  </div>
+                </div>
+                <div class="step">
+                  <div class="step-number">4</div>
+                  <div class="step-description">
+                    Feedback Contínuo<br />Melhoria das regras
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Caso de Uso Prático -->
+        <section class="use-case">
+          <h2 class="use-case-title">💼 CASO DE USO: Sistema de E-commerce</h2>
+
+          <div class="cyber-card">
+            <h3 class="card-title">🔎 Cenário do Projeto</h3>
+            <p>
+              <strong>Sistema:</strong> Plataforma de e-commerce com módulos de
+              usuário, pagamento e catálogo
+            </p>
+            <p><strong>Tecnologias:</strong> Node.js, React, PostgreSQL</p>
+            <p><strong>Equipe:</strong> 15 desenvolvedores, CI/CD ativo</p>
+          </div>
+
+          <div class="cyber-card">
+            <h3 class="card-title">🛡️ Implementação da Estratégia Híbrida</h3>
+
+            <h4>Fase 1: SAST Automatizado (Integração CI/CD)</h4>
+            <div class="code-block">
+              <span class="code-comment"># Pipeline CI/CD - .gitlab-ci.yml</span
+              ><br />
+              stages:<br />
+              &nbsp;&nbsp;- test<br />
+              &nbsp;&nbsp;- security<br />
+              <br />
+              sast_analysis:<br />
+              &nbsp;&nbsp;stage: security<br />
+              &nbsp;&nbsp;image: node:18<br />
+              &nbsp;&nbsp;script:<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;- npm install -g semgrep
+              sonarqube-scanner<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;- semgrep --config=auto .<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;- sonar-scanner<br />
+              &nbsp;&nbsp;allow_failure: false<br />
+            </div>
+
+            <h4>Fase 2: Triagem e Análise Manual</h4>
+            <ul class="cyber-list">
+              <li>
+                <strong>237 vulnerabilidades</strong> identificadas pelo SAST
+                automatizado
+              </li>
+              <li>
+                <strong>48% falsos positivos</strong> - filtrados
+                automaticamente
+              </li>
+              <li>
+                <strong>32 vulnerabilidades críticas</strong> - validadas
+                manualmente
+              </li>
+              <li>
+                <strong>15 falhas de lógica de negócio</strong> - identificadas
+                apenas na revisão manual
+              </li>
+            </ul>
+
+            <h4>Fase 3: Descobertas Chave</h4>
+            <div class="code-block">
+              <span class="code-comment"
+                >// Vulnerabilidade encontrada APENAS na análise manual:</span
+              ><br />
+              <span class="code-keyword">function</span>
+              <span class="code-function">processRefund</span>(orderId, amount)
+              {<br />
+              &nbsp;&nbsp;<span class="code-comment"
+                >// Lógica complexa de negócio</span
+              ><br />
+              &nbsp;&nbsp;<span class="code-keyword">if</span> (user.isAdmin ||
+              user.customerId === order.customerId) {<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-comment"
+                >// ⚠️ VULNERABILIDADE: Usuário comum pode processar
+                refund</span
+              ><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-comment"
+                >// de qualquer pedido se conhecer o orderId</span
+              ><br />
+              &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-keyword">return</span>
+              paymentGateway.refund(orderId, amount);<br />
+              &nbsp;&nbsp;}<br />
+              }
+            </div>
+          </div>
+
+          <div class="cyber-card">
+            <h3 class="card-title">📊 Resultados Obtidos</h3>
+            <div class="comparison-grid">
+              <div class="cyber-card">
+                <h4>🎯 Eficiência</h4>
+                <ul class="cyber-list">
+                  <li>Redução de 70% no tempo de análise</li>
+                  <li>95% de cobertura de código</li>
+                  <li>48% menos falsos positivos</li>
+                </ul>
+              </div>
+              <div class="cyber-card">
+                <h4>🛡️ Segurança</h4>
+                <ul class="cyber-list">
+                  <li>32 vulnerabilidades críticas corrigidas</li>
+                  <li>15 falhas de lógica identificadas</li>
+                  <li>0 incidentes em produção</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Conclusão -->
+        <section class="cyber-card">
+          <h2 class="card-title">🎯 Conclusão</h2>
+          <p>
+            <strong>Nenhuma abordagem é superior isoladamente.</strong> O
+            verdadeiro valor em segurança de aplicações vem da combinação
+            sinérgica entre:
+          </p>
+
+          <div class="comparison-grid">
+            <div class="cyber-card">
+              <h4>🤖 Automação</h4>
+              <p>
+                Escalabilidade, velocidade e consistência para vulnerabilidades
+                conhecidas
+              </p>
+            </div>
+            <div class="cyber-card">
+              <h4>👨‍💻 Análise Humana</h4>
+              <p>Contexto, lógica de negócio e vulnerabilidades complexas</p>
+            </div>
+          </div>
+
+          <div
+            class="code-block"
+            style="text-align: center; border-color: var(--hacker-green)"
+          >
+            <strong
+              >ABORDAGEM HÍBRIDA = COBERTURA MÁXIMA + OTIMIZAÇÃO DE
+              RECURSOS</strong
+            >
+          </div>
+        </section>
+      </main>
+
+      <footer class="cyber-footer">
+        <p>
+          Projeto de Segurança e Auditoria de Sistemas | Análise Estática SAST
+        </p>
+        <p>
+          🚀 Desenvolvido com foco em educação e práticas de segurança aplicadas
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>
