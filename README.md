@@ -62,5 +62,3 @@ Analisar e comparar as metodologias de análise estática de segurança, propond
 **💡 Observação**: Este projeto demonstra na prática como a integração entre ferramentas automatizadas e análise humana especializada cria uma estratégia de segurança mais robusta e eficiente.
 
 **Repositorio**:https://github.com/alfredo-allan/testes-de-seguranca
-
--
